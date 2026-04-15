@@ -1,0 +1,51 @@
+name: Obsidian Docs Cloud Pipeline
+
+on:
+  schedule:
+    # Corre todos los días a las 03:00 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    # Permite correrlo a mano con la opción de Dry Run
+    inputs:
+      dry_run:
+        description: 'Dry Run (no pushear a Obsidian)'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  sync-and-curate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Sync Engine Repo
+        uses: actions/checkout@v4
+        with:
+          path: sync-engine
+
+      - name: 📥 Checkout Obsidian Vault (Target)
+        uses: actions/checkout@v4
+        with:
+          repository: TU_USUARIO/TU_OBSIDIAN_VAULT_REPO
+          token: ${{ secrets.OBSIDIAN_PAT }}
+          path: obsidian-vault
+
+      - name: 🛠️ Instalar dependencias modernas (yq, fd)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fd-find ripgrep
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod a+x /usr/local/bin/yq
+          sudo ln -s $(which fdfind) /usr/local/bin/fd
+
+      - name: 🚀 Ejecutar Motor de Sincronización y Curación
+        run: |
+          cd sync-engine
+          chmod +x scripts/*.sh
+          ./scripts/01-clone-repos.sh
+          ./scripts/02-curate-docs.sh
+
+      - name: 📦 Empaquetar y Pushear a Obsidian
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          cd sync-engine
+          ./scripts/03-push-to-vault.sh ../obsidian-vault

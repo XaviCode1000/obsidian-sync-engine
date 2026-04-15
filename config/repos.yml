@@ -1,0 +1,5 @@
+repos:
+  - name: google/gemini-cli
+  - name: qwen-code/qwen-code
+  - name: hermes-agent/hermes-agent
+  - name: gentle-ai/engram
