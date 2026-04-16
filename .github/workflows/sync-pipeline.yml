@@ -25,7 +25,7 @@ jobs:
       - name: 📥 Checkout Obsidian Vault (Target)
         uses: actions/checkout@v4
         with:
-          repository: TU_USUARIO/TU_OBSIDIAN_VAULT_REPO
+          repository: XaviCode1000/obsidian-vault
           token: ${{ secrets.OBSIDIAN_PAT }}
           path: obsidian-vault
 
