@@ -2,9 +2,8 @@ name: Obsidian Docs Cloud Pipeline
 
 on:
   schedule:
-    # Mantenemos el cron para asegurar que los repos upstream se actualicen
-    # aunque vos no toques tu configuración (por si hay docs nuevos en el origen)
-    - cron: '0 3 * * *'
+    # Corre cada 48 horas a las 7 AM (España) = 6 AM UTC
+    - cron: '0 6 */2 * *'
 
   push:
     branches:
