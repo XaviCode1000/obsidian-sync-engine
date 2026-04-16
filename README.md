@@ -1,6 +1,13 @@
 # Obsidian Sync Engine
 
-Pipeline de sincronización automatizada de documentación técnica desde repositorios Open Source hacia tu bóveda de Obsidian.
+Pipeline de sincronización automatizada de documentación técnica desde repositorios Open Source hacia tu bóveda de Obsidian. **Cero carga computacional local.**
+
+## Por qué esto existe
+
+Tony Stark no mezcla cemento en el living de su casa. Este pipeline hace lo mismo con tu documentación:
+- **Cloud-native**: Todo corre en GitHub Actions, tu máquina no expende CPU
+- **Curación automática**: Elimina CHANGELOG, LICENSE, CODE_OF_CONDUCT antes de llegar a tu disco
+- **Idempotente**: Si no hay cambios, no hay commit
 
 ## Arquitectura
 
@@ -12,58 +19,66 @@ obsidian-sync-engine/
 ├── config/
 │   └── repos.yml                # Lista de repositorios a sincronizar
 ├── scripts/
-│   ├── 01-clone-repos.sh        # Clonación blobless
-│   ├── 02-curate-docs.sh        # Curación (eliminación de basura)
+│   ├── 01-clone-repos.sh        # Clonación blobless (rápida)
+│   ├── 02-curate-docs.sh        # Curación con fd (elimina basura)
 │   └── 03-push-to-vault.sh      # Sincronización a Obsidian
 └── README.md
 ```
 
-## Setup
+## Repositorios sincronizados
 
-### 1. Crear el repositorio de GitHub para tu Obsidian Vault
+```yaml
+repos:
+  - name: google-gemini/gemini-cli
+  - name: QwenLM/qwen-code
+  - name: NousResearch/hermes-agent
+  - name: Gentleman-Programming/engram
+```
+
+## Setup (ya configurado)
+
+Este setup ya está hecho para XaviCode1000. Si lo usás para vos:
+
+### 1. Crear repos Vault
 
 ```bash
-# En GitHub, creá un repo nuevo (privado) para tu bóveda de Obsidian
-# Luego inicializalo localmente:
 cd ~/Documentos/OBSIDIAN
 git init
-git remote add origin https://github.com/TU_USUARIO/TU_OBSIDIAN_VAULT_REPO.git
+gh repo create MI-OBSIDIAN-VAULT --private
+git remote add origin https://github.com/TU_USUARIO/MI-OBSIDIAN-VAULT.git
 git add .
-git commit -m "chore: initial vault setup"
+git commit -m "chore: initial vault"
 git push -u origin main
 ```
 
-### 2. Modificar `sync-pipeline.yml`
+### 2. Configurar el workflow
 
-Reemplazá `TU_USUARIO/TU_OBSIDIAN_VAULT_REPO` con tu usuario y repo real.
+Editá `.github/workflows/sync-pipeline.yml` y reemplazá:
+```yaml
+repository: TU_USUARIO/TU_OBSIDIAN_VAULT_REPO
+```
 
 ### 3. Generar Fine-grained PAT
 
-1. Ve a GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
-2. Generate new token:
-   - **Repository access**: Only select repositories → elegí `obsidian-sync-engine`
-   - **Permissions**: Contents → Read and Write
-   - **Expiration**: 6 meses
+1. **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**
+2. **Generate new token**:
+   - Repository access: Only select repositories → elegí tu sync-engine repo
+   - Permissions: Contents → Read and Write
+   - Expiration: 6 meses
 3. Copiá el token
 
-### 4. Configurar el secreto
+### 4. Configurar secreto
 
-En el repo `obsidian-sync-engine`:
-- Settings → Secrets and variables → Actions → New repository secret
+**Repo sync-engine → Settings → Secrets and variables → Actions → New repository secret**
 - Name: `OBSIDIAN_PAT`
-- Value: el token que generaste
-
-### 5. Pushear el motor
-
-```bash
-cd ~/Documentos/OBSIDIAN/obsidian-sync-engine
-gh repo create obsidian-sync-engine --public --source=. --push
-```
+- Value: el token
 
 ## Uso
 
-- **Automático**: El cron corre todos los días a las 3 AM UTC
-- **Manual**: Ve a Actions → "Obsidian Docs Cloud Pipeline" → Run workflow → desmarcá `dry_run`
+| Método | Cuándo |
+|--------|--------|
+| **Automático** | Cron: todos los días a las 3 AM UTC |
+| **Manual** | Actions → Run workflow → desmarcá `dry_run` |
 
 ## Agregar nuevos repos
 
@@ -71,17 +86,24 @@ Editá `config/repos.yml`:
 
 ```yaml
 repos:
-  - name: google/gemini-cli
-  - name: qwen-code/qwen-code
-  - name: hermes-agent/hermes-agent
-  - name: gentle-ai/engram
+  - name: google-gemini/gemini-cli
+  - name: QwenLM/qwen-code
+  - name: NousResearch/hermes-agent
+  - name: Gentleman-Programming/engram
   - name: nuevo/repo  # <-- agregá acá
 ```
 
-Hacé commit y push. El pipeline se actualiza automáticamente.
+Commit + push. El pipeline actualiza automáticamente.
+
+## Costos
+
+**Gratis.** 
+- Repo público = 2,000 minutos/mes de Actions
+- Cada ejecución = ~1-2 minutos
+- Con 1 ejecución/día = ~60 minutos/mes
 
 ## Reglas de oro
 
-1. **No editar archivos en `docs-externos/`** - el pipeline los pisa en cada ejecución
-2. **Editar solo `repos.yml`** para agregar/quit ar repos
-3. **Regenerar el PAT** cada 6 meses cuando expire
+1. **No editar `docs-externos/`** - el pipeline lo pisa en cada sync
+2. **Solo editar `repos.yml`** para agregar/quitar repos
+3. **Regenerar PAT cada 6 meses** cuando expire
