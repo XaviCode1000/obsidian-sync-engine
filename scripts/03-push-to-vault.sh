@@ -9,7 +9,7 @@ if [[ -z "$VAULT_DIR" ]]; then
   exit 1
 fi
 
-DEST_DIR="$VAULT_DIR/docs-externos"
+DEST_DIR="$VAULT_DIR/repository-docs"
 
 echo "📦 Sincronizando archivos a $DEST_DIR..."
 mkdir -p "$DEST_DIR"
@@ -24,7 +24,7 @@ cd "$VAULT_DIR"
 git config user.name "JARVIS Sync Bot"
 git config user.email "jarvis@tonystark.com"
 
-git add docs-externos/
+git add repository-docs/
 
 # Detectamos si hay cambios reales
 if git status --porcelain | rg -q "^[AMDR]"; then

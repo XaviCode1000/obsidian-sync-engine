@@ -104,6 +104,6 @@ Commit + push. El pipeline actualiza automáticamente.
 
 ## Reglas de oro
 
-1. **No editar `docs-externos/`** - el pipeline lo pisa en cada sync
+1. **No editar `repository-docs/`** - el pipeline lo pisa en cada sync
 2. **Solo editar `repos.yml`** para agregar/quitar repos
 3. **Regenerar PAT cada 6 meses** cuando expire
