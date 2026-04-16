@@ -2,8 +2,16 @@ name: Obsidian Docs Cloud Pipeline
 
 on:
   schedule:
-    # Corre todos los días a las 03:00 AM UTC
+    # Mantenemos el cron para asegurar que los repos upstream se actualicen
+    # aunque vos no toques tu configuración (por si hay docs nuevos en el origen)
     - cron: '0 3 * * *'
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'config/repos.yml'  # LA CLAVE: Solo se dispara si cambia este archivo
+
   workflow_dispatch:
     # Permite correrlo a mano con la opción de Dry Run
     inputs:
