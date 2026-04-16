@@ -21,6 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: sync-engine
+          token: ${{ secrets.OBSIDIAN_PAT }}
 
       - name: 📥 Checkout Obsidian Vault (Target)
         uses: actions/checkout@v4
