@@ -3,3 +3,4 @@ repos:
   - name: QwenLM/qwen-code
   - name: NousResearch/hermes-agent
   - name: Gentleman-Programming/engram
+  - name: safishamsi/graphify
