@@ -2,8 +2,8 @@ name: Obsidian Docs Cloud Pipeline
 
 on:
   schedule:
-    # Corre cada 48 horas a las 7 AM (España) = 6 AM UTC
-    - cron: '0 6 */2 * *'
+    # Corre cada 12 horas a las 12:00 y 00:00 UTC
+    - cron: '0 0,12 * * *'
 
   push:
     branches:
